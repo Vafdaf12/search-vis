@@ -1,9 +1,10 @@
+from pdb import run
 import pyglet
-from pyglet.window import mouse
+from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import Grid
-from search import SearchAlgorithm, BreadthFirstSearch
+from search import DepthFirstSearch, SearchAlgorithm, BreadthFirstSearch
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
@@ -16,7 +17,12 @@ if __name__ == "__main__":
     source_picker = CellPicker(grid, (0, 0, 255))
     dest_picker = CellPicker(grid, (0, 255, 0))
 
-    algo: SearchAlgorithm | None = None
+    algos: list[SearchAlgorithm] = [
+        BreadthFirstSearch(grid),
+        DepthFirstSearch(grid)
+    ]
+    active_algo = 0
+    running = False
 
 
     @window.event
@@ -27,8 +33,31 @@ if __name__ == "__main__":
             dest_picker.set_target_position(x, y)
 
     @window.event
+    def on_key_press(code: int, modifiers: int):
+        global grid
+        global source_picker
+        global dest_picker
+        global active_algo
+        match code:
+            case key.R:
+                grid.reset()
+                source_picker.reset()
+                dest_picker.reset()
+            case key.RIGHT:
+                active_algo = (active_algo + 1) % len(algos)
+                print(active_algo)
+            case key.RIGHT:
+                if active_algo == 0:
+                    active_algo = len(algos) - 1
+                else:
+                    active_algo -= 1
+                print(active_algo)
+
+
+    @window.event
     def on_mouse_press(x: int, y: int, button: int, modifiers):
         global algo
+        global running
         if button == mouse.RIGHT:
             cell = grid.get_target_cell(x, y)
             if cell:
@@ -40,7 +69,8 @@ if __name__ == "__main__":
             elif not dest_picker.picked_position:
                 dest_picker.pick()
                 print("Picked:", source_picker.picked_position, "->", dest_picker.picked_position)
-                algo = BreadthFirstSearch(grid, source_picker.picked_position, dest_picker.picked_position)  # type: ignore
+                algos[active_algo].start_search(source_picker.picked_position, dest_picker.picked_position) # type: ignore
+                running = True
 
     @window.event
     def on_draw():
@@ -51,10 +81,16 @@ if __name__ == "__main__":
             dest_picker.draw()
 
     def update_algo(dt: float):
-        global algo
-        if not algo:
+        global algos
+        global active_algo
+        global running
+
+        if not running:
             return
+
+        algo = algos[active_algo]
         if algo.dest_found():
+            running = False
             return
         algo.next()
 

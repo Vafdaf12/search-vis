@@ -14,36 +14,36 @@ class SearchAlgorithm(ABC):
     @abstractmethod
     def dest_found(self) -> bool: ...
 
+    @abstractmethod
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]): ...
 
     def generate_neighbors(self, x: int, y: int, target: CellState):
-        cell = self.grid.get_cell(x-1, y)
+        cell = self.grid.get_cell(x - 1, y)
         if cell and cell.state == target:
             yield cell.pos
 
-        cell = self.grid.get_cell(x, y+1)
+        cell = self.grid.get_cell(x, y + 1)
         if cell and cell.state == target:
             yield cell.pos
 
-        cell = self.grid.get_cell(x+1, y)
+        cell = self.grid.get_cell(x + 1, y)
         if cell and cell.state == target:
             yield cell.pos
-            
-        cell = self.grid.get_cell(x, y-1)
+
+        cell = self.grid.get_cell(x, y - 1)
         if cell and cell.state == target:
             yield cell.pos
+
 
 class DepthFirstSearch(SearchAlgorithm):
-    def __init__(
-        self,
-        grid: Grid,
-        start: tuple[int, int],
-        dest: tuple[int, int],
-    ):
+    def __init__(self, grid: Grid):
         super().__init__(grid)
-
         self.found = False
-        self.open = [start]
+
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]):
+        self.open = [src]
         self.dest = dest
+        self.found = False
 
     def next(self):
         if len(self.open) == 0:
@@ -66,17 +66,14 @@ class DepthFirstSearch(SearchAlgorithm):
 
 
 class BreadthFirstSearch(SearchAlgorithm):
-    def __init__(
-        self,
-        grid: Grid,
-        start: tuple[int, int],
-        dest: tuple[int, int],
-    ):
+    def __init__(self, grid: Grid):
         super().__init__(grid)
-
         self.found = False
-        self.open = [start]
+
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]):
+        self.open = [src]
         self.dest = dest
+        self.found = False
 
     def next(self):
         if len(self.open) == 0:
