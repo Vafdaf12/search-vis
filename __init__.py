@@ -6,7 +6,7 @@ from grid import GridCell
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
-GRID_SIZE = (20, 10)
+GRID_SIZE = (31, 17)
 
 if __name__ == "__main__":
     window = pyglet.window.Window(caption="COS 314 - Search Algorithms")

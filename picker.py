@@ -34,7 +34,7 @@ class CellPicker:
         grid_x = (targetx - self.grid_offset[0]) // self.cell_size
         grid_y = (targety - self.grid_offset[1]) // self.cell_size
 
-        if grid_x >= self.grid_size[0] or grid_y > self.grid_size[1]:
+        if grid_x >= self.grid_size[0] or grid_y >= self.grid_size[1]:
             self.state = PickState.INVALID
             return
         
