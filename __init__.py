@@ -94,5 +94,5 @@ if __name__ == "__main__":
             return
         algo.next()
 
-    pyglet.clock.schedule_interval(update_algo, 1 / 20)
+    pyglet.clock.schedule_interval(update_algo, 1 / 60)
     pyglet.app.run()
