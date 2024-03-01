@@ -1,8 +1,9 @@
 import pyglet
+from pyglet.window import mouse
 
 from picker import CellPicker
 from grid import Grid
-from search import SearchAlgorithm, BreadthFirstSearch, DepthFirstSearch
+from search import SearchAlgorithm, BreadthFirstSearch
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
@@ -28,13 +29,18 @@ if __name__ == "__main__":
     @window.event
     def on_mouse_press(x: int, y: int, button: int, modifiers):
         global algo
+        if button == mouse.RIGHT:
+            cell = grid.get_target_cell(x, y)
+            if cell:
+                grid.toggle_obstacle(*cell.pos)
 
-        if not source_picker.picked_position:
-            source_picker.pick()
-        elif not dest_picker.picked_position:
-            dest_picker.pick()
-            print("Picked:", source_picker.picked_position, "->", dest_picker.picked_position)
-            algo = BreadthFirstSearch(grid, source_picker.picked_position, dest_picker.picked_position)  # type: ignore
+        if button == mouse.LEFT:
+            if not source_picker.picked_position:
+                source_picker.pick()
+            elif not dest_picker.picked_position:
+                dest_picker.pick()
+                print("Picked:", source_picker.picked_position, "->", dest_picker.picked_position)
+                algo = BreadthFirstSearch(grid, source_picker.picked_position, dest_picker.picked_position)  # type: ignore
 
     @window.event
     def on_draw():
