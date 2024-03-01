@@ -1,7 +1,7 @@
 import pyglet
-from pyglet import shapes
 
 from picker import CellPicker
+from grid import GridCell
 
 
 CELL_SIZE = 30
@@ -11,19 +11,14 @@ GRID_SIZE = (20, 10)
 if __name__ == "__main__":
     window = pyglet.window.Window(caption="COS 314 - Search Algorithms")
     batch = pyglet.graphics.Batch()
-    grid = [
-        shapes.Rectangle(
-            x=OFFSET[0] + CELL_SIZE * (i % GRID_SIZE[0]),
-            y=OFFSET[1] + CELL_SIZE * (i // GRID_SIZE[0]),
-            width=CELL_SIZE,
-            height=CELL_SIZE,
-            batch=batch,
-            color=(
-                int((i % GRID_SIZE[0]) / GRID_SIZE[0] * 255),
-                int((i // GRID_SIZE[0]) / GRID_SIZE[1] * 255),
-                0,
-                255,
+    cells = [
+        GridCell(
+            size=CELL_SIZE,
+            pos=(
+                OFFSET[0] + CELL_SIZE * (i % GRID_SIZE[0]),
+                OFFSET[1] + CELL_SIZE * (i // GRID_SIZE[0]),
             ),
+            batch=batch
         )
         for i in range(GRID_SIZE[0] * GRID_SIZE[1])
     ]
@@ -52,6 +47,5 @@ if __name__ == "__main__":
         source_picker.draw()
         if source_picker.picked_position:
             dest_picker.draw()
-
 
     pyglet.app.run()
