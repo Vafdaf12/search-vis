@@ -1,16 +1,12 @@
 from abc import ABC, abstractmethod
-from grid import CellState, GridCell
-
-
+from grid import CellState, Grid
 
 
 class SearchAlgorithm(ABC):
-    grid: list[GridCell]
-    grid_width: int
+    grid: Grid
 
-    def __init__(self, grid: list[GridCell], w: int):
+    def __init__(self, grid: Grid):
         self.grid = grid
-        self.grid_width = w
 
     @abstractmethod
     def next(self): ...
@@ -18,49 +14,32 @@ class SearchAlgorithm(ABC):
     @abstractmethod
     def dest_found(self) -> bool: ...
 
-    def reset(self):
-        for cell in self.grid:
-            if cell.is_empty:
-                cell.set_state(CellState.NONE)
-
-    def visit(self, x: int, y: int):
-        cell = self.grid[self.index(x, y)]
-        if not cell.is_empty:
-            return
-
-        cell.set_state(CellState.VISITED)
-
-    def to_visit(self, x: int, y: int):
-        cell = self.grid[self.index(x, y)]
-        if not cell.is_empty:
-            return
-
-        cell.set_state(CellState.TO_VISITED)
 
     def generate_neighbors(self, x: int, y: int, target: CellState):
-        if x > 0 and self.grid[self.index(x-1, y)].state == target:
-            yield (x - 1, y)
-        if y < (len(self.grid) // self.grid_width) - 1 and self.grid[self.index(x, y+1)].state == target:
-            yield (x, y + 1)
-        if x < self.grid_width - 1 and self.grid[self.index(x+1, y)].state == target:
-            yield (x + 1, y)
+        cell = self.grid.get_cell(x-1, y)
+        if cell and cell.state == target:
+            yield cell.pos
 
-        if y > 0 and self.grid[self.index(x, y-1)].state == target:
-            yield (x, y - 1)
+        cell = self.grid.get_cell(x, y+1)
+        if cell and cell.state == target:
+            yield cell.pos
 
-    def index(self, x: int, y: int) -> int:
-        return y * self.grid_width + x
-
+        cell = self.grid.get_cell(x+1, y)
+        if cell and cell.state == target:
+            yield cell.pos
+            
+        cell = self.grid.get_cell(x, y-1)
+        if cell and cell.state == target:
+            yield cell.pos
 
 class DepthFirstSearch(SearchAlgorithm):
     def __init__(
         self,
-        grid: list[GridCell],
-        w: int,
+        grid: Grid,
         start: tuple[int, int],
         dest: tuple[int, int],
     ):
-        super().__init__(grid, w)
+        super().__init__(grid)
 
         self.found = False
         self.open = [start]
@@ -77,23 +56,23 @@ class DepthFirstSearch(SearchAlgorithm):
 
         for pos in self.generate_neighbors(*x, CellState.NONE):
             if pos not in self.open:
-                self.to_visit(*pos)
+                self.grid.want_to_visit(*pos)
                 self.open.insert(0, pos)
 
-        self.visit(*x)
+        self.grid.visit(*x)
 
     def dest_found(self) -> bool:
         return self.found
 
+
 class BreadthFirstSearch(SearchAlgorithm):
     def __init__(
         self,
-        grid: list[GridCell],
-        w: int,
+        grid: Grid,
         start: tuple[int, int],
         dest: tuple[int, int],
     ):
-        super().__init__(grid, w)
+        super().__init__(grid)
 
         self.found = False
         self.open = [start]
@@ -110,10 +89,10 @@ class BreadthFirstSearch(SearchAlgorithm):
 
         for pos in self.generate_neighbors(*x, CellState.NONE):
             if pos not in self.open:
-                self.to_visit(*pos)
+                self.grid.want_to_visit(*pos)
                 self.open.append(pos)
 
-        self.visit(*x)
+        self.grid.visit(*x)
 
     def dest_found(self) -> bool:
         return self.found
