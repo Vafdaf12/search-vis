@@ -13,11 +13,13 @@ class GridCell:
     def __init__(
         self,
         size: int,
+        grid_pos: tuple[int, int],
         pos: tuple[int, int],
         batch: graphics.Batch,
         state: CellState = CellState.NONE,
     ):
 
+        self.pos = grid_pos
         self.state = state
         self.rect = shapes.Rectangle(
             x=pos[0],
@@ -31,3 +33,7 @@ class GridCell:
     def set_state(self, state: CellState):
         self.state = state
         self.rect.color = (*state.value, 255)
+
+    @property
+    def is_empty(self):
+        return self.state in [CellState.NONE, CellState.TO_VISITED, CellState.VISITED]
