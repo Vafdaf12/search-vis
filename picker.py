@@ -1,41 +1,47 @@
 from enum import Enum
 from pyglet import shapes
 
-from grid import Grid, GridCell
+from render import GridRenderer
+
 
 class PickState(Enum):
     PICKING = 0
     PICKED = 1
     INVALID = -1
 
+
 class CellPicker:
+    selected: tuple[int, int] | None = None
 
     def __init__(
         self,
-        grid: Grid,
+        renderer: GridRenderer,
         tint: tuple[int, int, int] = (255, 255, 255),
     ):
-        self.grid = grid
-        self.rect = shapes.Rectangle(0, 0, self.grid.cell_size, self.grid.cell_size, (*tint, 255))
+
+        self.renderer = renderer
+        self.rect = shapes.Rectangle(
+            0, 0, self.renderer.cell_size, self.renderer.cell_size, (*tint, 255)
+        )
         self.state = PickState.INVALID
 
     def set_target_position(self, targetx: int, targety: int):
         if self.state == PickState.PICKED:
             return
-        
-        cell = self.grid.get_target_cell(targetx, targety)
+
+        cell = self.renderer.collide_cell(targetx, targety)
         if not cell:
             self.state = PickState.INVALID
             return
 
         self.state = PickState.PICKING
-        self.__set_cell(cell)
+        self.__set_cell(*cell)
 
-    def __set_cell(self, cell: GridCell):
-        self.grid_pos = cell.pos
-        self.rect.x = cell.rect.x
-        self.rect.y = cell.rect.y
-
+    def __set_cell(self, x: int, y: int):
+        self.selected = x, y
+        x, y = self.renderer.get_cell_position(x, y)
+        self.rect.x = x
+        self.rect.y = y
 
     def pick(self):
         if self.state != PickState.PICKING:
@@ -53,4 +59,4 @@ class CellPicker:
 
     @property
     def picked_position(self) -> tuple[int, int] | None:
-        return self.grid_pos if self.state == PickState.PICKED else None
+        return self.selected if self.state == PickState.PICKED else None

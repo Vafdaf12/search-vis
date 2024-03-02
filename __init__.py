@@ -3,6 +3,7 @@ from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import CellState, Grid
+from render import GridRenderer
 from search import (
     BestFirstSearch,
     DepthFirstSearch,
@@ -31,16 +32,20 @@ def calculate_efficiency(grid: Grid) -> float:
 
 if __name__ == "__main__":
     window = pyglet.window.Window(caption="COS 314 - Search Algorithms")
-    grid = Grid(CELL_SIZE, *GRID_SIZE, (OFFSET[0], OFFSET[1] + CELL_SIZE))
+    grid = Grid(*GRID_SIZE)
     grid.load_from_file("last_open.map")
 
+    renderer = GridRenderer(grid, CELL_SIZE, (OFFSET[0], OFFSET[1] + CELL_SIZE), 1)
+
+    x, y, w, h = renderer.bounding_box
+
     window.size = (
-        grid.offset[0] + (grid.gap + grid.cell_size) * grid.size[0] + OFFSET[0],
-        grid.offset[1] + (grid.gap + grid.cell_size) * grid.size[1] + OFFSET[1],
+        x + w + OFFSET[0],
+        y + h + OFFSET[1],
     )
 
-    source_picker = CellPicker(grid, (0, 0, 255))
-    dest_picker = CellPicker(grid, (0, 255, 0))
+    source_picker = CellPicker(renderer, (0, 0, 255))
+    dest_picker = CellPicker(renderer, (0, 255, 0))
 
     heuristic = DistanceHeuristic()
     algos: list[SearchAlgorithm] = [
@@ -109,9 +114,9 @@ if __name__ == "__main__":
         global heuristic
         global active_algo
         if button == mouse.RIGHT:
-            cell = grid.get_target_cell(x, y)
+            cell = renderer.collide_cell(x, y)
             if cell:
-                grid.toggle_obstacle(*cell.pos)
+                grid.toggle_obstacle(*cell)
 
         if button == mouse.LEFT:
             if not source_picker.picked_position:
@@ -138,9 +143,11 @@ if __name__ == "__main__":
         global active_algo
         global labels
         global stats_label
+        global renderer
 
         window.clear()
-        grid.draw()
+        renderer.update()
+        renderer.draw()
         source_picker.draw()
         if source_picker.picked_position:
             dest_picker.draw()
