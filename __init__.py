@@ -13,6 +13,7 @@ from search import (
 )
 from heuristic import DistanceHeuristic
 
+FONT = "Fira Code"
 CELL_SIZE = 30
 OFFSET = (10, 10)
 GRID_SIZE = (30, 16)
@@ -51,9 +52,10 @@ if __name__ == "__main__":
         GreedyHillClimbSearch(grid, heuristic),
     ]
 
+
     labels = [
         pyglet.text.Label(
-            a.__str__(), "Iosevka Term", font_size=16, x=OFFSET[0], y=OFFSET[1]
+            a.__str__(), FONT, font_size=16, x=OFFSET[0], y=OFFSET[1]
         )
         for a in algos
     ]
