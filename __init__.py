@@ -4,7 +4,7 @@ from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import Grid
-from search import DepthFirstSearch, SearchAlgorithm, BreadthFirstSearch
+from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, SearchAlgorithm, BreadthFirstSearch
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
@@ -17,9 +17,11 @@ if __name__ == "__main__":
     source_picker = CellPicker(grid, (0, 0, 255))
     dest_picker = CellPicker(grid, (0, 255, 0))
 
+    heuristic = DistanceHeuristic()
     algos: list[SearchAlgorithm] = [
         BreadthFirstSearch(grid),
-        DepthFirstSearch(grid)
+        DepthFirstSearch(grid),
+        BestFirstSearch(grid, heuristic)
     ]
     active_algo = 0
     running = False
@@ -38,11 +40,13 @@ if __name__ == "__main__":
         global source_picker
         global dest_picker
         global active_algo
+        global running
         match code:
             case key.R:
                 grid.reset()
                 source_picker.reset()
                 dest_picker.reset()
+                running = False
             case key.RIGHT:
                 active_algo = (active_algo + 1) % len(algos)
                 print(active_algo)
@@ -58,6 +62,7 @@ if __name__ == "__main__":
     def on_mouse_press(x: int, y: int, button: int, modifiers):
         global algo
         global running
+        global heuristic
         if button == mouse.RIGHT:
             cell = grid.get_target_cell(x, y)
             if cell:
@@ -68,8 +73,11 @@ if __name__ == "__main__":
                 source_picker.pick()
             elif not dest_picker.picked_position:
                 dest_picker.pick()
+                assert dest_picker.picked_position
+
                 print("Picked:", source_picker.picked_position, "->", dest_picker.picked_position)
-                algos[active_algo].start_search(source_picker.picked_position, dest_picker.picked_position) # type: ignore
+                heuristic.set_target(dest_picker.picked_position)
+                algos[active_algo].start_search(source_picker.picked_position, dest_picker.picked_position)
                 running = True
 
     @window.event
