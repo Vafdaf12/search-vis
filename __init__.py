@@ -14,9 +14,13 @@ from search import (
 )
 from heuristic import DistanceHeuristic
 
+pyglet.options['audio'] = ('xaudio2', 'directsound', 'openal', 'pulse', 'silent')
+
+FONT = "Fira Code"
 CELL_SIZE = 30
 OFFSET = (10, 10)
 GRID_SIZE = (30, 16)
+SOURCE = pyglet.media.load('tbhYipee.mp3')
 
 
 def calculate_efficiency(grid: Grid) -> float:
@@ -56,15 +60,16 @@ if __name__ == "__main__":
         GreedyHillClimbSearch(grid, heuristic),
     ]
 
+
     labels = [
         pyglet.text.Label(
-            a.__str__(), "Iosevka Term", font_size=16, x=OFFSET[0], y=OFFSET[1]
+            a.__str__(), FONT, font_size=16, x=OFFSET[0], y=OFFSET[1]
         )
         for a in algos
     ]
     stats_label = pyglet.text.Label(
         "",
-        "Iosevka Term",
+        FONT,
         font_size=16,
         x=window.size[0] - OFFSET[0],
         y=OFFSET[1],
@@ -167,6 +172,7 @@ if __name__ == "__main__":
 
         algo = algos[active_algo]
         if algo.dest_found():
+            SOURCE.play()
             percentage = round(calculate_efficiency(grid) * 100, 1)
             stats_label.text = f"{percentage}% unexplored"
             running = False
