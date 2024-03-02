@@ -61,7 +61,7 @@ if __name__ == "__main__":
     ]
     stats_label = pyglet.text.Label(
         "",
-        "Iosevka Term",
+        FONT,
         font_size=16,
         x=window.size[0] - OFFSET[0],
         y=OFFSET[1],
