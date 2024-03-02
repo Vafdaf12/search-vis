@@ -4,7 +4,7 @@ from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import Grid
-from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, SearchAlgorithm, BreadthFirstSearch
+from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, HillClimbSearch, SearchAlgorithm, BreadthFirstSearch
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
@@ -21,7 +21,8 @@ if __name__ == "__main__":
     algos: list[SearchAlgorithm] = [
         BreadthFirstSearch(grid),
         DepthFirstSearch(grid),
-        BestFirstSearch(grid, heuristic)
+        BestFirstSearch(grid, heuristic),
+        HillClimbSearch(grid, heuristic)
     ]
     active_algo = 0
     running = False

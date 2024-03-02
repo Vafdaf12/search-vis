@@ -157,3 +157,37 @@ class BestFirstSearch(SearchAlgorithm):
 
     def dest_found(self) -> bool:
         return self.found
+
+class HillClimbSearch(SearchAlgorithm):
+    open: list[HeuristicState] = []
+    found: bool = False
+
+    def __init__(self, grid: Grid, heuristic: HeuristicFunction):
+        super().__init__(grid)
+        self.heuristic = heuristic
+
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]):
+        self.open = [HeuristicState(self.heuristic.calculate(src), src)]
+        self.dest = dest
+        self.found = False
+
+    def next(self):
+        if len(self.open) == 0:
+            return
+
+        x, *self.open = self.open
+        if x.state == self.dest:
+            self.found = True
+            return
+
+        children = []
+        for pos in self.generate_neighbors(*x.state, CellState.NONE):
+            if pos not in self.open:
+                self.grid.want_to_visit(*pos)
+                heappush(children, HeuristicState(self.heuristic.calculate(pos), pos))
+        
+        self.open = children + self.open
+        self.grid.visit(*x.state)
+
+    def dest_found(self) -> bool:
+        return self.found
