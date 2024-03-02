@@ -162,6 +162,8 @@ if __name__ == "__main__":
 
         algo = algos[active_algo]
         if algo.dest_found():
+            #TODO Add Yipee! message
+            
             percentage = round(calculate_efficiency(grid) * 100, 1)
             stats_label.text = f"{percentage}% unexplored"
             running = False
