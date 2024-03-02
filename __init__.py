@@ -12,6 +12,7 @@ GRID_SIZE = (30, 16)
 if __name__ == "__main__":
     window = pyglet.window.Window(caption="COS 314 - Search Algorithms")
     grid = Grid(CELL_SIZE, *GRID_SIZE, (OFFSET[0], OFFSET[1] + CELL_SIZE))
+    grid.load_from_file("last_open.map")
 
     source_picker = CellPicker(grid, (0, 0, 255))
     dest_picker = CellPicker(grid, (0, 255, 0))
@@ -122,3 +123,4 @@ if __name__ == "__main__":
 
     pyglet.clock.schedule_interval(update_algo, 1 / 60)
     pyglet.app.run()
+    grid.save_to_file("last_open.map")

@@ -118,3 +118,60 @@ class Grid:
 
     def draw(self):
         self.batch.draw()
+    
+    def load_from_file(self, path: str): 
+        lines = []
+        with open(path, 'r+') as file:
+            lines = file.readlines()
+        
+        w, h, *lines = lines
+        w, h = int(w), int(h)
+
+        self.size = (w, h)
+        self.batch = graphics.Batch()
+        self.cells = [
+            GridCell(
+                size=self.cell_size,
+                grid_pos=(
+                    i % w,
+                    i // w,
+                ),
+                pos=(
+                    self.offset[0] + (self.cell_size+self.gap) * (i % w),
+                    self.offset[1] + (self.cell_size+self.gap) * (i // w),
+                ),
+                batch=self.batch,
+            )
+            for i in range(w * h)
+        ]
+        for y, line in enumerate(reversed(lines)):
+            for x, c in enumerate(line):
+                cell = self.get_cell(x, y)
+                print(x, y)
+                if not cell:
+                    continue
+                match c:
+                    case ".":
+                        cell.set_state(CellState.NONE)
+                    case "#":
+                        cell.set_state(CellState.OBSTACLE)
+
+
+    def save_to_file(self, path: str): 
+        lines = [
+            str(self.size[0]) + "\n",
+            str(self.size[1])
+        ]
+        for y in range(self.size[1]-1, -1, -1):
+            line = "\n"
+            for x in range(self.size[0]):
+                cell = self.get_cell(x, y)
+                assert cell
+                if cell.state == CellState.OBSTACLE:
+                    line += "#"
+                else:
+                    line += "."
+            lines.append(line)
+
+        with open(path, 'w+') as file:
+            file.writelines(lines)
