@@ -1,18 +1,17 @@
-from pdb import run
 import pyglet
 from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import Grid
-from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, HillClimbSearch, SearchAlgorithm, BreadthFirstSearch
+from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, GreedyHillClimbSearch, HillClimbSearch, SearchAlgorithm, BreadthFirstSearch
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
-GRID_SIZE = (31, 17)
+GRID_SIZE = (30, 16)
 
 if __name__ == "__main__":
     window = pyglet.window.Window(caption="COS 314 - Search Algorithms")
-    grid = Grid(CELL_SIZE, *GRID_SIZE, OFFSET)
+    grid = Grid(CELL_SIZE, *GRID_SIZE, (OFFSET[0], OFFSET[1] + CELL_SIZE))
 
     source_picker = CellPicker(grid, (0, 0, 255))
     dest_picker = CellPicker(grid, (0, 255, 0))
@@ -22,8 +21,15 @@ if __name__ == "__main__":
         BreadthFirstSearch(grid),
         DepthFirstSearch(grid),
         BestFirstSearch(grid, heuristic),
-        HillClimbSearch(grid, heuristic)
+        HillClimbSearch(grid, heuristic),
+        GreedyHillClimbSearch(grid, heuristic)
     ]
+
+    labels = [
+        pyglet.text.Label(a.__str__(), "Iosevka Term", font_size=16, x=OFFSET[0], y=OFFSET[1])
+        for a in algos
+    ]
+
     active_algo = 0
     running = False
 
@@ -48,15 +54,18 @@ if __name__ == "__main__":
                 source_picker.reset()
                 dest_picker.reset()
                 running = False
-            case key.RIGHT:
-                active_algo = (active_algo + 1) % len(algos)
-                print(active_algo)
-            case key.RIGHT:
-                if active_algo == 0:
-                    active_algo = len(algos) - 1
-                else:
-                    active_algo -= 1
-                print(active_algo)
+    
+        if not running:
+            match code:
+                case key.RIGHT:
+                    active_algo = (active_algo + 1) % len(algos)
+                    print(active_algo)
+                case key.LEFT:
+                    if active_algo == 0:
+                        active_algo = len(algos) - 1
+                    else:
+                        active_algo -= 1
+                    print(active_algo)
 
 
     @window.event
@@ -64,6 +73,7 @@ if __name__ == "__main__":
         global algo
         global running
         global heuristic
+        global active_algo
         if button == mouse.RIGHT:
             cell = grid.get_target_cell(x, y)
             if cell:
@@ -83,11 +93,18 @@ if __name__ == "__main__":
 
     @window.event
     def on_draw():
+        global active_algo
+        global labels
+
         window.clear()
         grid.draw()
         source_picker.draw()
         if source_picker.picked_position:
             dest_picker.draw()
+        
+        labels[active_algo].draw()
+        
+        
 
     def update_algo(dt: float):
         global algos

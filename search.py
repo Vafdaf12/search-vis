@@ -68,6 +68,9 @@ class DepthFirstSearch(SearchAlgorithm):
     def dest_found(self) -> bool:
         return self.found
 
+    def __str__(self) -> str:
+        return "Depth-First Search"
+
 
 class BreadthFirstSearch(SearchAlgorithm):
     def __init__(self, grid: Grid):
@@ -97,6 +100,10 @@ class BreadthFirstSearch(SearchAlgorithm):
 
     def dest_found(self) -> bool:
         return self.found
+
+    def __str__(self) -> str:
+        return "Breadth-First Search"
+
 
 
 @dataclass(order=True)
@@ -158,9 +165,16 @@ class BestFirstSearch(SearchAlgorithm):
     def dest_found(self) -> bool:
         return self.found
 
+    def __str__(self) -> str:
+        return "Best-First Search"
+
+
 class HillClimbSearch(SearchAlgorithm):
     open: list[HeuristicState] = []
     found: bool = False
+
+    def __str__(self) -> str:
+        return "Hill Climbing Search"
 
     def __init__(self, grid: Grid, heuristic: HeuristicFunction):
         super().__init__(grid)
@@ -191,3 +205,43 @@ class HillClimbSearch(SearchAlgorithm):
 
     def dest_found(self) -> bool:
         return self.found
+
+class GreedyHillClimbSearch(SearchAlgorithm):
+    found: bool = False
+    path: list[HeuristicState] = []
+
+    def __init__(self, grid: Grid, heuristic: HeuristicFunction):
+        super().__init__(grid)
+        self.heuristic = heuristic
+
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]):
+        self.path = [HeuristicState(self.heuristic.calculate(src), src)]
+        self.dest = dest
+        self.found = False
+
+    def next(self):
+        if len(self.path) == 0:
+            self.found = True
+            return
+
+        cur = self.path[len(self.path)-1]
+        if cur.state == self.dest:
+            self.found = True
+            return
+
+        self.grid.visit(*cur.state)
+
+        for pos in self.generate_neighbors(*cur.state, CellState.NONE):
+            h = HeuristicState(self.heuristic.calculate(pos), pos)
+            if h < cur:
+                self.grid.want_to_visit(*pos)
+                self.path.append(h)
+                return
+
+        self.path.pop()
+
+    def dest_found(self) -> bool:
+        return self.found
+
+    def __str__(self) -> str:
+        return "Greedy Hill Climbing Search"
