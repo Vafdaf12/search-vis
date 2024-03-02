@@ -3,7 +3,15 @@ from pyglet.window import mouse, key
 
 from picker import CellPicker
 from grid import Grid
-from search import BestFirstSearch, DepthFirstSearch, DistanceHeuristic, GreedyHillClimbSearch, HillClimbSearch, SearchAlgorithm, BreadthFirstSearch
+from search import (
+    BestFirstSearch,
+    DepthFirstSearch,
+    GreedyHillClimbSearch,
+    HillClimbSearch,
+    SearchAlgorithm,
+    BreadthFirstSearch,
+)
+from heuristic import DistanceHeuristic
 
 CELL_SIZE = 30
 OFFSET = (10, 10)
@@ -23,17 +31,18 @@ if __name__ == "__main__":
         DepthFirstSearch(grid),
         BestFirstSearch(grid, heuristic),
         HillClimbSearch(grid, heuristic),
-        GreedyHillClimbSearch(grid, heuristic)
+        GreedyHillClimbSearch(grid, heuristic),
     ]
 
     labels = [
-        pyglet.text.Label(a.__str__(), "Iosevka Term", font_size=16, x=OFFSET[0], y=OFFSET[1])
+        pyglet.text.Label(
+            a.__str__(), "Iosevka Term", font_size=16, x=OFFSET[0], y=OFFSET[1]
+        )
         for a in algos
     ]
 
     active_algo = 0
     running = False
-
 
     @window.event
     def on_mouse_motion(x: int, y: int, dx: int, dy: int):
@@ -55,7 +64,7 @@ if __name__ == "__main__":
                 source_picker.reset()
                 dest_picker.reset()
                 running = False
-    
+
         if not running:
             match code:
                 case key.RIGHT:
@@ -67,7 +76,6 @@ if __name__ == "__main__":
                     else:
                         active_algo -= 1
                     print(active_algo)
-
 
     @window.event
     def on_mouse_press(x: int, y: int, button: int, modifiers):
@@ -87,9 +95,16 @@ if __name__ == "__main__":
                 dest_picker.pick()
                 assert dest_picker.picked_position
 
-                print("Picked:", source_picker.picked_position, "->", dest_picker.picked_position)
+                print(
+                    "Picked:",
+                    source_picker.picked_position,
+                    "->",
+                    dest_picker.picked_position,
+                )
                 heuristic.set_target(dest_picker.picked_position)
-                algos[active_algo].start_search(source_picker.picked_position, dest_picker.picked_position)
+                algos[active_algo].start_search(
+                    source_picker.picked_position, dest_picker.picked_position
+                )
                 running = True
 
     @window.event
@@ -102,10 +117,8 @@ if __name__ == "__main__":
         source_picker.draw()
         if source_picker.picked_position:
             dest_picker.draw()
-        
+
         labels[active_algo].draw()
-        
-        
 
     def update_algo(dt: float):
         global algos

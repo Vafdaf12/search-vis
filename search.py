@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from heapq import heappop, heappush
-from math import sqrt
-from typing import Protocol
-from grid import CellState, Grid
 
+from grid import CellState, Grid
+from heuristic import HeuristicFunction
+
+from heapq import heappop, heappush
 
 class SearchAlgorithm(ABC):
     grid: Grid
@@ -112,26 +112,6 @@ class HeuristicState:
     state: tuple[int, int] = field(compare=False)
 
 
-class HeuristicFunction(ABC):
-
-    @abstractmethod
-    def calculate(self, state: tuple[int, int]) -> float: ...
-
-    @abstractmethod
-    def set_target(self, target: tuple[int, int]): ...
-
-
-class DistanceHeuristic(HeuristicFunction):
-    dest: tuple[int, int]
-
-    def calculate(self, state: tuple[int, int]) -> float: 
-        dx = state[0] - self.dest[0]
-        dy = state[1] - self.dest[1]
-        return sqrt(dx * dx + dy * dy)
-
-    def set_target(self, target: tuple[int, int]):
-        self.dest = target
-
 
 class BestFirstSearch(SearchAlgorithm):
     open: list[HeuristicState] = []
@@ -167,7 +147,6 @@ class BestFirstSearch(SearchAlgorithm):
 
     def __str__(self) -> str:
         return "Best-First Search"
-
 
 class HillClimbSearch(SearchAlgorithm):
     open: list[HeuristicState] = []
