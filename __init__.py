@@ -22,6 +22,11 @@ if __name__ == "__main__":
     grid = Grid(CELL_SIZE, *GRID_SIZE, (OFFSET[0], OFFSET[1] + CELL_SIZE))
     grid.load_from_file("last_open.map")
 
+    window.size = (
+        grid.offset[0] + (grid.gap + grid.cell_size)*grid.size[0] + OFFSET[0],
+        grid.offset[1] + (grid.gap + grid.cell_size)*grid.size[1] + OFFSET[1],
+    )
+
     source_picker = CellPicker(grid, (0, 0, 255))
     dest_picker = CellPicker(grid, (0, 255, 0))
 
