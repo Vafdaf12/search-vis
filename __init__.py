@@ -21,6 +21,7 @@ CELL_SIZE = 30
 OFFSET = (10, 10)
 GRID_SIZE = (30, 16)
 SOURCE = pyglet.media.load('tbhYipee.mp3')
+SOURCE.volume = 0.5
 
 
 def calculate_efficiency(grid: Grid) -> float:
@@ -99,6 +100,12 @@ if __name__ == "__main__":
                 source_picker.reset()
                 dest_picker.reset()
                 running = False
+            case key.PERIOD:
+                if SOURCE.volume < 1:
+                    SOURCE.volume += 0.1
+            case key.COMMA:
+                if SOURCE.volume > 0:
+                    SOURCE.volume -= 0.1
 
         if not running:
             match code:
