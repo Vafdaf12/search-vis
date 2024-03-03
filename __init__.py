@@ -11,12 +11,13 @@ from search import (
     HillClimbSearch,
     SearchAlgorithm,
     BreadthFirstSearch,
+    TabuSearch,
 )
 from heuristic import DistanceHeuristic
 
 pyglet.options['audio'] = ('xaudio2', 'directsound', 'openal', 'pulse', 'silent')
 
-FONT = "Fira Code"
+FONT = "Iosevka Term"
 CELL_SIZE = 30
 OFFSET = (10, 10)
 GRID_SIZE = (30, 16)
@@ -58,6 +59,7 @@ if __name__ == "__main__":
         BestFirstSearch(grid, heuristic),
         HillClimbSearch(grid, heuristic),
         GreedyHillClimbSearch(grid, heuristic),
+        TabuSearch(grid, heuristic),
     ]
 
 

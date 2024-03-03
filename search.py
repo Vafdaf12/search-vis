@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+import random
 
 from grid import CellState, Grid
 from heuristic import HeuristicFunction
@@ -224,3 +225,53 @@ class GreedyHillClimbSearch(SearchAlgorithm):
 
     def __str__(self) -> str:
         return "Greedy Hill Climbing Search"
+
+class TabuSearch(SearchAlgorithm):
+    found: bool = False
+    path: list[HeuristicState] = []
+
+    def __init__(self, grid: Grid, heuristic: HeuristicFunction):
+        super().__init__(grid)
+        self.heuristic = heuristic
+
+    def start_search(self, src: tuple[int, int], dest: tuple[int, int]):
+        self.path = [HeuristicState(self.heuristic.calculate(src), src)]
+        self.dest = dest
+        self.found = False
+
+    def next(self):
+        if len(self.path) == 0:
+            self.found = True
+            return
+
+        cur = self.path[len(self.path)-1]
+        if cur.state == self.dest:
+            self.found = True
+            return
+
+        self.grid.visit(*cur.state)
+
+        children = list(self.generate_neighbors(*cur.state, CellState.NONE))
+        for pos in children:
+            h = HeuristicState(self.heuristic.calculate(pos), pos)
+            if h < cur:
+                self.grid.want_to_visit(*pos)
+                self.path.append(h)
+                return
+
+        if len(children) == 0:
+            self.path.pop()
+        else:
+            value = random.sample(children, 1)[0]
+
+            h = HeuristicState(self.heuristic.calculate(value), value)
+            self.grid.want_to_visit(*value)
+            self.path.append(h)
+            
+
+
+    def dest_found(self) -> bool:
+        return self.found
+
+    def __str__(self) -> str:
+        return "Tabu Search"
